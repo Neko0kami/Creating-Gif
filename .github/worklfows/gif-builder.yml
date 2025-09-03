@@ -1,0 +1,43 @@
+name: Build GIF
+
+on:
+  push:
+    paths:
+      - "*.jpg"
+      - "*.png"
+      - "*.jpeg"
+      - "create_gif.py"
+  workflow_dispatch: # allow manual trigger from GitHub UI
+
+jobs:
+  build-gif:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install imageio pillow numpy
+
+      - name: Run GIF builder
+        run: python create_gif.py
+
+            - name: Commit and push output.gif
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout main
+          git pull --rebase origin main
+          git add output.gif
+          git commit -m "Auto-update output.gif [skip ci]" || echo "No changes to commit"
+          git push origin main
+
